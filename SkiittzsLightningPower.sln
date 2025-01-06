@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34701.34
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkiittzsLightningPower", "SkiittzsLightningPower\SkiittzsLightningPower.csproj", "{4873A59E-546A-482A-A0B5-AC62989BF5FE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4873A59E-546A-482A-A0B5-AC62989BF5FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4873A59E-546A-482A-A0B5-AC62989BF5FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4873A59E-546A-482A-A0B5-AC62989BF5FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4873A59E-546A-482A-A0B5-AC62989BF5FE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B4F98570-04CF-4FC7-AB04-4F95F6EA4AFA}
+	EndGlobalSection
+EndGlobal
