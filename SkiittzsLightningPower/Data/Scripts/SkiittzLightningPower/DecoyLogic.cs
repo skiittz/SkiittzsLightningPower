@@ -31,7 +31,7 @@ namespace SkiittzsLightningPower
 			});
 			resourceComponent.SetRemainingCapacityByType(ElectricityId, float.PositiveInfinity);
 			resourceComponent.SetProductionEnabledByType(ElectricityId,true);
-			resourceComponent.SetMaxOutputByType(ElectricityId, 20);
+			resourceComponent.SetMaxOutputByType(ElectricityId, 0);
 			resourceComponent.Enabled = true;
 			entity.Components.Add(resourceComponent);
 
