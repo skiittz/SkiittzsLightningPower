@@ -65,9 +65,6 @@ namespace SkiittzsLightningPower
 			var fatBlock = slim.FatBlock;
 			if (fatBlock == null) return;
 
-			if (!ActiveDecoyIds.Contains(fatBlock.EntityId))
-				return;
-
 			DecoyLogic instance;
 			if (!DecoyInstances.TryGetValue(fatBlock.EntityId, out instance))
 				return;
