@@ -132,6 +132,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Scripts\SkiittzLightningPower\CapacitorLogic.cs" />
     <Compile Include="Data\Scripts\SkiittzLightningPower\DecoyLogic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -140,7 +141,9 @@
     <Content Include="thumb.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Data\CubeBlocks_LightningCapacitor.sbc" />
     <None Include="modinfo.sbmi" />
+    <None Include="PLAN_LightningCapacitor.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

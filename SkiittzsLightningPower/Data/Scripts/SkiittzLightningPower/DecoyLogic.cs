@@ -75,13 +75,40 @@ namespace SkiittzsLightningPower
 		{
 			if ((entity as IMyTerminalBlock)?.IsWorking != true) return;
 
+			var incomingPower = damageInfo.Amount / 20;
+			damageInfo.Amount = 0;
+
+			// Try to route energy to capacitors on the same grid
+			var grid = (entity as IMyCubeBlock)?.CubeGrid;
+			if (grid != null)
+			{
+				var capacitors = new List<CapacitorLogic>();
+				foreach (var kvp in CapacitorLogic.CapacitorInstances)
+				{
+					var capGrid = kvp.Value.GetGrid();
+					if (capGrid != null && capGrid.EntityId == grid.EntityId)
+					{
+						capacitors.Add(kvp.Value);
+					}
+				}
+
+				if (capacitors.Count > 0)
+				{
+					var share = incomingPower / capacitors.Count;
+					foreach (var cap in capacitors)
+					{
+						cap.AddLightningCharge(share);
+					}
+					return;
+				}
+			}
+
+			// Fallback: no capacitors on grid, use existing direct-output behavior
 			var sourceComponent = entity?.Components?.Get<MyResourceSourceComponent>();
 			if (sourceComponent == null) return;
 
-			var incomingPower = damageInfo.Amount / 20;
 			var newOutput = sourceComponent.MaxOutputByType(ElectricityId) + incomingPower;
 			sourceComponent.SetMaxOutputByType(ElectricityId, newOutput);
-			damageInfo.Amount = 0;
 		}
 
 		public override void UpdateAfterSimulation100()
