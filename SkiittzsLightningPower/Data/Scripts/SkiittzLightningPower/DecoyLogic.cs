@@ -49,7 +49,8 @@ namespace SkiittzsLightningPower
 
 			NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
 			var terminalBlock = Container.Entity as IMyTerminalBlock;
-			terminalBlock.AppendingCustomInfo += DecoyLogic_AppendingCustomInfo;
+			if (terminalBlock != null)
+				terminalBlock.AppendingCustomInfo += DecoyLogic_AppendingCustomInfo;
 	    }
 
 		private static void DamageHandlerStatic(object target, ref MyDamageInformation damageInfo)
