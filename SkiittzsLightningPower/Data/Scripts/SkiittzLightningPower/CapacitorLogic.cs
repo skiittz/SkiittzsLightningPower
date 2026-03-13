@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.EntityComponents;
@@ -23,6 +24,8 @@ namespace SkiittzsLightningPower
 
         internal static readonly Dictionary<long, CapacitorLogic> CapacitorInstances = new Dictionary<long, CapacitorLogic>();
 
+        private static readonly Guid StorageGuid = new Guid("e3b6f1f9-6a2c-4a0f-9c79-0f2a3b0a5f1e");
+
         private float _storedEnergy;
         private const float MaxCapacity = 1f; // MWh
         private const float MaxDischargeRate = 10f; // MW
@@ -38,6 +41,19 @@ namespace SkiittzsLightningPower
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             entity = Container.Entity;
+
+            if (entity.Storage == null)
+                entity.Storage = new MyModStorageComponent();
+
+            string storedEnergyString;
+            if (entity.Storage.TryGetValue(StorageGuid, out storedEnergyString))
+            {
+                float parsedEnergy;
+                if (float.TryParse(storedEnergyString, NumberStyles.Float, CultureInfo.InvariantCulture, out parsedEnergy))
+                {
+                    _storedEnergy = parsedEnergy;
+                }
+            }
 
             CapacitorInstances[entity.EntityId] = this;
 
@@ -57,6 +73,27 @@ namespace SkiittzsLightningPower
             var terminalBlock = entity as IMyTerminalBlock;
             if (terminalBlock != null)
                 terminalBlock.AppendingCustomInfo += CapacitorLogic_AppendingCustomInfo;
+
+            entity.OnClose += Entity_OnClose;
+        }
+
+        private void Entity_OnClose(IMyEntity closedEntity)
+        {
+            if (closedEntity == null)
+                return;
+
+            if (closedEntity.Storage != null)
+            {
+                closedEntity.Storage[StorageGuid] = _storedEnergy.ToString(CultureInfo.InvariantCulture);
+            }
+
+            CapacitorInstances.Remove(closedEntity.EntityId);
+
+            var terminalBlock = closedEntity as IMyTerminalBlock;
+            if (terminalBlock != null)
+                terminalBlock.AppendingCustomInfo -= CapacitorLogic_AppendingCustomInfo;
+
+            closedEntity.OnClose -= Entity_OnClose;
         }
 
         public void AddLightningCharge(float amount)
@@ -91,12 +128,6 @@ namespace SkiittzsLightningPower
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
 
-        public override void UpdateOnceBeforeFrame()
-        {
-            // Not used, but keeping the base call
-            base.UpdateOnceBeforeFrame();
-        }
-
         public override void UpdateAfterSimulation()
         {
             // Process any pending explosion outside the damage handler callback
@@ -119,6 +150,11 @@ namespace SkiittzsLightningPower
 
             var block = entity as IMyCubeBlock;
             if (block == null) return;
+
+            // Clamp excess energy to avoid unbounded explosion radius/damage that could freeze the server
+            const float MaxExcessEnergy = 10f; // MWh, adjust as needed for balance/performance
+            if (excessEnergy > MaxExcessEnergy)
+                excessEnergy = MaxExcessEnergy;
 
             var position = block.GetPosition();
             var radius = ExplosionBaseRadius + (excessEnergy * ExplosionRadiusPerMWh);

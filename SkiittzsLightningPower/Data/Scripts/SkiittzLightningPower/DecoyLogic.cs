@@ -76,7 +76,6 @@ namespace SkiittzsLightningPower
 			if ((entity as IMyTerminalBlock)?.IsWorking != true) return;
 
 			var incomingPower = damageInfo.Amount / 20;
-			damageInfo.Amount = 0;
 
 			// Try to route energy to capacitors on the same grid
 			var grid = (entity as IMyCubeBlock)?.CubeGrid;
@@ -94,11 +93,18 @@ namespace SkiittzsLightningPower
 
 				if (capacitors.Count > 0)
 				{
-					var share = incomingPower / capacitors.Count;
+					// Convert the incoming power (MW) into energy (MWh) over a defined lightning event duration.
+					// Here we assume a 1-second effective duration for the lightning strike.
+					const double LightningEventDurationHours = 1.0 / 3600.0;
+					var incomingEnergyMWh = incomingPower * LightningEventDurationHours;
+					var shareEnergyMWh = incomingEnergyMWh / capacitors.Count;
 					foreach (var cap in capacitors)
 					{
-						cap.AddLightningCharge(share);
+						cap.AddLightningCharge(shareEnergyMWh);
 					}
+
+					// Successfully routed energy to capacitors; cancel explosion damage.
+					damageInfo.Amount = 0;
 					return;
 				}
 			}
@@ -109,6 +115,9 @@ namespace SkiittzsLightningPower
 
 			var newOutput = sourceComponent.MaxOutputByType(ElectricityId) + incomingPower;
 			sourceComponent.SetMaxOutputByType(ElectricityId, newOutput);
+
+			// Successfully increased output; cancel explosion damage.
+			damageInfo.Amount = 0;
 		}
 
 		public override void UpdateAfterSimulation100()
