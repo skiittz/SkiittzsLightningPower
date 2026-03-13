@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.EntityComponents;
@@ -17,12 +18,25 @@ namespace SkiittzsLightningPower
     public class DecoyLogic : MyGameLogicComponent
     {
 	    private IMyEntity entity;
-	    private double lastStrike;
-	    public MyDefinitionId ElectricityId => MyDefinitionId.Parse("GasProperties/Electricity");
+	    private static readonly MyDefinitionId ElectricityId = MyDefinitionId.Parse("GasProperties/Electricity");
+
+	    private static bool _damageHandlerRegistered;
+	    private static readonly HashSet<long> ActiveDecoyIds = new HashSet<long>();
+	    private static readonly Dictionary<long, DecoyLogic> DecoyInstances = new Dictionary<long, DecoyLogic>();
+
 		public override void Init(MyObjectBuilder_EntityBase objectBuilder)
 	    {
-			MyAPIGateway.Session.DamageSystem.RegisterBeforeDamageHandler(1, DamageHandler);
 			entity = Container.Entity;
+
+			if (!_damageHandlerRegistered)
+			{
+				MyAPIGateway.Session.DamageSystem.RegisterBeforeDamageHandler(1, DamageHandlerStatic);
+				_damageHandlerRegistered = true;
+			}
+
+			ActiveDecoyIds.Add(entity.EntityId);
+			DecoyInstances[entity.EntityId] = this;
+
 			var resourceComponent = new MyResourceSourceComponent();
 			resourceComponent.Init(MyStringHash.GetOrCompute("SolarPanels"), new MyResourceSourceInfo
 			{
@@ -30,7 +44,7 @@ namespace SkiittzsLightningPower
 				ProductionToCapacityMultiplier = 1
 			});
 			resourceComponent.SetRemainingCapacityByType(ElectricityId, float.PositiveInfinity);
-			resourceComponent.SetProductionEnabledByType(ElectricityId,true);
+			resourceComponent.SetProductionEnabledByType(ElectricityId, true);
 			resourceComponent.SetMaxOutputByType(ElectricityId, 0);
 			resourceComponent.Enabled = true;
 			entity.Components.Add(resourceComponent);
@@ -40,20 +54,38 @@ namespace SkiittzsLightningPower
 			terminalBlock.AppendingCustomInfo += DecoyLogic_AppendingCustomInfo;
 	    }
 
-		private void DamageHandler(object target, ref MyDamageInformation damageInfo)
+		private static void DamageHandlerStatic(object target, ref MyDamageInformation damageInfo)
 		{
-			if (damageInfo.Type == MyDamageType.Explosion && damageInfo.AttackerId == 0)
-		    {
-			    if ((entity as IMyTerminalBlock)?.IsWorking != true) return;
+			if (damageInfo.Type != MyDamageType.Explosion || damageInfo.AttackerId != 0)
+				return;
 
-				var sourceComponent = entity?.Components?.Get<MyResourceSourceComponent>();
-				if(sourceComponent == null) return;
+			var slim = target as IMySlimBlock;
+			if (slim == null) return;
 
-				var incomingPower = damageInfo.Amount / 20;
-				var newOutput = sourceComponent.MaxOutput + incomingPower;
-				sourceComponent.SetMaxOutput(newOutput);
-				damageInfo.Amount = 0;
-		    }
+			var fatBlock = slim.FatBlock;
+			if (fatBlock == null) return;
+
+			if (!ActiveDecoyIds.Contains(fatBlock.EntityId))
+				return;
+
+			DecoyLogic instance;
+			if (!DecoyInstances.TryGetValue(fatBlock.EntityId, out instance))
+				return;
+
+			instance.HandleDamage(ref damageInfo);
+		}
+
+		private void HandleDamage(ref MyDamageInformation damageInfo)
+		{
+			if ((entity as IMyTerminalBlock)?.IsWorking != true) return;
+
+			var sourceComponent = entity?.Components?.Get<MyResourceSourceComponent>();
+			if (sourceComponent == null) return;
+
+			var incomingPower = damageInfo.Amount / 20;
+			var newOutput = sourceComponent.MaxOutputByType(ElectricityId) + incomingPower;
+			sourceComponent.SetMaxOutputByType(ElectricityId, newOutput);
+			damageInfo.Amount = 0;
 		}
 
 		public override void UpdateAfterSimulation100()
@@ -61,24 +93,42 @@ namespace SkiittzsLightningPower
 			var sourceComponent = entity.Components?.Get<MyResourceSourceComponent>();
 			if (sourceComponent == null) return;
 
-			var excess = Math.Max(0, sourceComponent.MaxOutput - sourceComponent.CurrentOutput) * 10;
+			var maxOutput = sourceComponent.MaxOutputByType(ElectricityId);
+			var currentOutput = sourceComponent.CurrentOutputByType(ElectricityId);
+			var excess = Math.Max(0, maxOutput - currentOutput) * 10;
 			if (excess > 1)
 			{
-				var block = (entity as IMyDecoy);
+				var block = entity as IMyDecoy;
 				if (block != null)
 				{
-					block.SlimBlock?.DoDamage(excess, MyStringHash.GetOrCompute("Overload"), true);
+					block.SlimBlock?.DoDamage((float)excess, MyStringHash.GetOrCompute("Overload"), true);
 				}
 			}
 
-			sourceComponent.SetMaxOutput(sourceComponent.MaxOutput*0.9f);
+			sourceComponent.SetMaxOutputByType(ElectricityId, maxOutput * 0.9f);
 		}
 		
 		void DecoyLogic_AppendingCustomInfo(IMyTerminalBlock block, StringBuilder customInfo)
 		{
 			var sourceComponent = entity.Components?.Get<MyResourceSourceComponent>();
 			if (sourceComponent == null) return;
-			customInfo.Append($"Current Output: {sourceComponent.MaxOutput.ToString("F2")}MW\n");
+			customInfo.Append($"Current Output: {sourceComponent.MaxOutputByType(ElectricityId).ToString("F2")}MW\n");
+		}
+
+		public override void Close()
+		{
+			var terminalBlock = entity as IMyTerminalBlock;
+			if (terminalBlock != null)
+				terminalBlock.AppendingCustomInfo -= DecoyLogic_AppendingCustomInfo;
+
+			if (entity != null)
+			{
+				ActiveDecoyIds.Remove(entity.EntityId);
+				DecoyInstances.Remove(entity.EntityId);
+			}
+
+			entity = null;
+			base.Close();
 		}
 	}
 }
