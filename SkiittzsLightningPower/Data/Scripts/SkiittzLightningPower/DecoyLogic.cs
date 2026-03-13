@@ -14,7 +14,7 @@ using IMyEntity = VRage.ModAPI.IMyEntity;
 
 namespace SkiittzsLightningPower
 {
-    [MyEntityComponentDescriptor(typeof(MyObjectBuilder_Decoy), false)]
+    [MyEntityComponentDescriptor(typeof(MyObjectBuilder_Decoy), true)]
     public class DecoyLogic : MyGameLogicComponent
     {
 	    private IMyEntity entity;
@@ -102,13 +102,18 @@ namespace SkiittzsLightningPower
 			}
 
 			sourceComponent.SetMaxOutputByType(ElectricityId, maxOutput * 0.9f);
+
+			var terminalBlock = entity as IMyTerminalBlock;
+			if (terminalBlock != null)
+				terminalBlock.RefreshCustomInfo();
 		}
 		
 		void DecoyLogic_AppendingCustomInfo(IMyTerminalBlock block, StringBuilder customInfo)
 		{
-			var sourceComponent = entity.Components?.Get<MyResourceSourceComponent>();
+			customInfo.AppendLine("Lighting Rod Active");
+            var sourceComponent = entity.Components?.Get<MyResourceSourceComponent>();
 			if (sourceComponent == null) return;
-			customInfo.Append($"Current Output: {sourceComponent.MaxOutputByType(ElectricityId).ToString("F2")}MW\n");
+			customInfo.AppendLine($"Current Output: {sourceComponent.MaxOutputByType(ElectricityId).ToString("F2")}MW");
 		}
 
 		public override void Close()

@@ -139,5 +139,8 @@
     <Content Include="metadata.mod" />
     <Content Include="thumb.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="modinfo.sbmi" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
