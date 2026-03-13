@@ -143,7 +143,6 @@
   <ItemGroup>
     <None Include="Data\CubeBlocks_LightningCapacitor.sbc" />
     <None Include="modinfo.sbmi" />
-    <None Include="PLAN_LightningCapacitor.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
