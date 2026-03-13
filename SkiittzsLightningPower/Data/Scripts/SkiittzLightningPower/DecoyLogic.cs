@@ -21,7 +21,6 @@ namespace SkiittzsLightningPower
 	    private static readonly MyDefinitionId ElectricityId = MyDefinitionId.Parse("GasProperties/Electricity");
 
 	    private static bool _damageHandlerRegistered;
-	    private static readonly HashSet<long> ActiveDecoyIds = new HashSet<long>();
 	    private static readonly Dictionary<long, DecoyLogic> DecoyInstances = new Dictionary<long, DecoyLogic>();
 
 		public override void Init(MyObjectBuilder_EntityBase objectBuilder)
@@ -34,7 +33,6 @@ namespace SkiittzsLightningPower
 				_damageHandlerRegistered = true;
 			}
 
-			ActiveDecoyIds.Add(entity.EntityId);
 			DecoyInstances[entity.EntityId] = this;
 
 			var resourceComponent = new MyResourceSourceComponent();
@@ -120,7 +118,6 @@ namespace SkiittzsLightningPower
 
 			if (entity != null)
 			{
-				ActiveDecoyIds.Remove(entity.EntityId);
 				DecoyInstances.Remove(entity.EntityId);
 			}
 
