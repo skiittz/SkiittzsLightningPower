@@ -75,12 +75,49 @@ namespace SkiittzsLightningPower
 		{
 			if ((entity as IMyTerminalBlock)?.IsWorking != true) return;
 
+			var incomingPower = damageInfo.Amount * 10;
+
+			// Try to route energy to capacitors on the same grid
+			var grid = (entity as IMyCubeBlock)?.CubeGrid;
+			if (grid != null)
+			{
+				var capacitors = new List<CapacitorLogic>();
+				var snapshot = new List<CapacitorLogic>(CapacitorLogic.CapacitorInstances.Values);
+				foreach (var cap in snapshot)
+				{
+					var capGrid = cap.GetGrid();
+					if (capGrid != null && capGrid.EntityId == grid.EntityId)
+					{
+						capacitors.Add(cap);
+					}
+				}
+
+				if (capacitors.Count > 0)
+				{
+					// Convert the incoming power (MW) into energy (MWh) over a defined lightning event duration.
+					// Here we assume a 1-second effective duration for the lightning strike.
+					const double LightningEventDurationHours = 1.0 / 3600.0;
+					var incomingEnergyMWh = incomingPower * LightningEventDurationHours;
+					var shareEnergyMWh = incomingEnergyMWh / capacitors.Count;
+					foreach (var cap in capacitors)
+					{
+						cap.AddLightningCharge(shareEnergyMWh);
+					}
+
+					// Successfully routed energy to capacitors; cancel explosion damage.
+					damageInfo.Amount = 0;
+					return;
+				}
+			}
+
+			// Fallback: no capacitors on grid, use existing direct-output behavior
 			var sourceComponent = entity?.Components?.Get<MyResourceSourceComponent>();
 			if (sourceComponent == null) return;
 
-			var incomingPower = damageInfo.Amount / 20;
 			var newOutput = sourceComponent.MaxOutputByType(ElectricityId) + incomingPower;
 			sourceComponent.SetMaxOutputByType(ElectricityId, newOutput);
+
+			// Successfully increased output; cancel explosion damage.
 			damageInfo.Amount = 0;
 		}
 

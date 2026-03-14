@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <CubeBlocks>
+    <Definition xsi:type="MyObjectBuilder_UpgradeModuleDefinition">
+      <Id>
+        <TypeId>UpgradeModule</TypeId>
+        <SubtypeId>LightningCapacitor</SubtypeId>
+      </Id>
+      <DisplayName>Lightning Capacitor</DisplayName>
+      <Description>Stores energy from lightning strikes captured by nearby lightning rods (decoys). Cannot charge from the grid - only from lightning.</Description>
+      <Icon>Textures\GUI\Icons\Cubes\battery.dds</Icon>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Large\BatteryLarge.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="20" />
+        <Component Subtype="Construction" Count="30" />
+        <Component Subtype="PowerCell" Count="80" />
+        <Component Subtype="Computer" Count="25" />
+        <Component Subtype="SteelPlate" Count="10" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
+      </MountPoints>
+      <BlockPairName>LightningCapacitor</BlockPairName>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>40</BuildTimeSeconds>
+      <DamageEffectName>Damage_Electrical_Damaged</DamageEffectName>
+      <DamagedSound>ParticleElectrical</DamagedSound>
+      <EmissiveColorPreset>Default</EmissiveColorPreset>
+      <DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
+      <DestroySound>WepSmallWarheadExpl</DestroySound>
+      <PCU>25</PCU>
+    </Definition>
+    <Definition xsi:type="MyObjectBuilder_UpgradeModuleDefinition">
+      <Id>
+        <TypeId>UpgradeModule</TypeId>
+        <SubtypeId>SmallLightningCapacitor</SubtypeId>
+      </Id>
+      <DisplayName>Lightning Capacitor</DisplayName>
+      <Description>Stores energy from lightning strikes captured by nearby lightning rods (decoys). Cannot charge from the grid - only from lightning.</Description>
+      <Icon>Textures\GUI\Icons\Cubes\battery.dds</Icon>
+      <CubeSize>Small</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Small\BatterySmall.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="5" />
+        <Component Subtype="Construction" Count="5" />
+        <Component Subtype="PowerCell" Count="20" />
+        <Component Subtype="Computer" Count="2" />
+        <Component Subtype="SteelPlate" Count="3" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
+      </MountPoints>
+      <BlockPairName>LightningCapacitor</BlockPairName>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>20</BuildTimeSeconds>
+      <DamageEffectName>Damage_Electrical_Damaged</DamageEffectName>
+      <DamagedSound>ParticleElectrical</DamagedSound>
+      <EmissiveColorPreset>Default</EmissiveColorPreset>
+      <DestroyEffect>BlockDestroyedExplosion_Small</DestroyEffect>
+      <DestroySound>WepSmallWarheadExpl</DestroySound>
+      <PCU>25</PCU>
+    </Definition>
+  </CubeBlocks>
+</Definitions>
