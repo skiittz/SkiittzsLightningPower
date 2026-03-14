@@ -96,18 +96,18 @@ namespace SkiittzsLightningPower
             closedEntity.OnClose -= Entity_OnClose;
         }
 
-        public void AddLightningCharge(float amount)
+        public void AddLightningCharge(double amount)
         {
-            var headroom = MaxCapacity - _storedEnergy;
+            var headroom = (double)(MaxCapacity - _storedEnergy);
             if (amount <= headroom)
             {
-                _storedEnergy += amount;
+                _storedEnergy += (float)amount;
                 return;
             }
 
             // Fill to capacity, calculate excess
             _storedEnergy = MaxCapacity;
-            var excess = amount - headroom;
+            var excess = (float)(amount - headroom);
 
             // Deal overload damage to the capacitor block
             var block = entity as IMyCubeBlock;

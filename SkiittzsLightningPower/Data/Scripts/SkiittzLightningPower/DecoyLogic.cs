@@ -82,12 +82,13 @@ namespace SkiittzsLightningPower
 			if (grid != null)
 			{
 				var capacitors = new List<CapacitorLogic>();
-				foreach (var kvp in CapacitorLogic.CapacitorInstances)
+				var snapshot = new List<CapacitorLogic>(CapacitorLogic.CapacitorInstances.Values);
+				foreach (var cap in snapshot)
 				{
-					var capGrid = kvp.Value.GetGrid();
+					var capGrid = cap.GetGrid();
 					if (capGrid != null && capGrid.EntityId == grid.EntityId)
 					{
-						capacitors.Add(kvp.Value);
+						capacitors.Add(cap);
 					}
 				}
 
@@ -100,7 +101,7 @@ namespace SkiittzsLightningPower
 					var shareEnergyMWh = incomingEnergyMWh / capacitors.Count;
 					foreach (var cap in capacitors)
 					{
-						cap.AddLightningCharge((float)shareEnergyMWh);
+						cap.AddLightningCharge(shareEnergyMWh);
 					}
 
 					// Successfully routed energy to capacitors; cancel explosion damage.
