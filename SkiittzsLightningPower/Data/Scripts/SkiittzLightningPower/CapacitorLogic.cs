@@ -27,7 +27,7 @@ namespace SkiittzsLightningPower
         private static readonly Guid StorageGuid = new Guid("e3b6f1f9-6a2c-4a0f-9c79-0f2a3b0a5f1e");
 
         private float _storedEnergy;
-        private const float MaxCapacity = 1f; // MWh
+        private const float MaxCapacity = 0.2f; // MWh
         private const float MaxDischargeRate = 10f; // MW
         private const float OverloadDamageMultiplier = 100f; // damage per MWh of excess energy
         private const float ExplosionBaseRadius = 5f; // minimum explosion radius in meters
@@ -227,15 +227,14 @@ namespace SkiittzsLightningPower
 
             // Calculate how much was actually drawn since last update (~100 ticks = ~1.67 seconds)
             var currentOutput = sourceComponent.CurrentOutputByType(ElectricityId);
-            var deltaTime = 100f / 3600f; // 100 ticks at 60fps ≈ 1.667 seconds, converted to hours for MWh
+            var deltaTime = (100f / 60f) / 3600f; // 100 ticks / 60 ticks-per-second = ~1.667 seconds, converted to hours for MWh
             var energyUsed = currentOutput * deltaTime;
             _storedEnergy = Math.Max(0, _storedEnergy - energyUsed);
 
             // Set max output based on remaining stored energy
             if (_storedEnergy > 0.001f)
             {
-                var output = Math.Min(MaxDischargeRate, _storedEnergy / deltaTime);
-                sourceComponent.SetMaxOutputByType(ElectricityId, (float)output);
+                sourceComponent.SetMaxOutputByType(ElectricityId, MaxDischargeRate);
             }
             else
             {
@@ -253,7 +252,7 @@ namespace SkiittzsLightningPower
         private void CapacitorLogic_AppendingCustomInfo(IMyTerminalBlock block, StringBuilder customInfo)
         {
             customInfo.AppendLine("Lightning Capacitor");
-            customInfo.AppendLine($"Stored Energy: {_storedEnergy.ToString("F2")} / {MaxCapacity.ToString("F2")} MWh");
+            customInfo.AppendLine($"Stored Energy: {(_storedEnergy*1000).ToString("F2")} / {(MaxCapacity*1000).ToString("F2")} KWh");
             if (_storedEnergy >= MaxCapacity)
                 customInfo.AppendLine("WARNING: At max capacity — overcharge will cause damage!");
             var sourceComponent = entity.Components?.Get<MyResourceSourceComponent>();

@@ -75,7 +75,7 @@ namespace SkiittzsLightningPower
 		{
 			if ((entity as IMyTerminalBlock)?.IsWorking != true) return;
 
-			var incomingPower = damageInfo.Amount / 20;
+			var incomingPower = damageInfo.Amount * 10;
 
 			// Try to route energy to capacitors on the same grid
 			var grid = (entity as IMyCubeBlock)?.CubeGrid;
@@ -100,7 +100,7 @@ namespace SkiittzsLightningPower
 					var shareEnergyMWh = incomingEnergyMWh / capacitors.Count;
 					foreach (var cap in capacitors)
 					{
-						cap.AddLightningCharge(shareEnergyMWh);
+						cap.AddLightningCharge((float)shareEnergyMWh);
 					}
 
 					// Successfully routed energy to capacitors; cancel explosion damage.
