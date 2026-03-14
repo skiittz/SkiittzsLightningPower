@@ -35,7 +35,7 @@ A dedicated energy storage block that can **only be charged by lightning** — i
 **How it works:**
 
 - Capacitors receive energy from lightning rods (decoys) on the same grid.
-- Each capacitor can store up to **1 MWh** of energy.
+- Each capacitor can store up to **200 KWh** of energy.
 - Stored energy is discharged back into the grid at up to **10 MW**.
 - Energy drains naturally as your grid consumes it, just like a battery.
 
